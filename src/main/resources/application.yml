@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: learn-spring-mq
+
+rocketmq:
+  name-server: localhost:9876
+  producer:
+    group: game-producer-group
+    send-message-timeout: 3000
+  consumer:
+    group: game-consumer-group
+
+server:
+  port: 8080

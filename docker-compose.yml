@@ -1,0 +1,34 @@
+services:
+  namesrv:
+    image: apache/rocketmq:5.3.3
+    container_name: rmqnamesrv
+    ports:
+      - "9876:9876"
+    volumes:
+      - ./devops/docker/volume/data/namesrv/logs:/home/rocketmq/logs
+    command: sh mqnamesrv
+
+  broker:
+    image: apache/rocketmq:5.3.3
+    container_name: rmqbroker
+    depends_on:
+      - namesrv
+    ports:
+      - "10911:10911"
+    volumes:
+      - ./devops/docker/volume/data/broker/store:/home/rocketmq/store
+      - ./devops/docker/volume/data/broker/logs:/home/rocketmq/logs
+      - ./devops/docker/volume/conf/broker.conf:/home/rocketmq/conf/broker.conf
+    command: sh mqbroker -n rmqnamesrv:9876 -c /home/rocketmq/conf/broker.conf
+
+  proxy:
+    image: apache/rocketmq:5.3.3
+    container_name: rmqproxy
+    depends_on:
+      - broker
+      - namesrv
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./devops/docker/volume/data/proxy/logs:/home/rocketmq/logs
+    command: sh mqproxy -n rmqnamesrv:9876
