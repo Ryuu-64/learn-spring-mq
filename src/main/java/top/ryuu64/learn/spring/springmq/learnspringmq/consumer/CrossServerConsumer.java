@@ -24,21 +24,16 @@ import java.nio.charset.StandardCharsets;
 @Component
 @RequiredArgsConstructor
 public class CrossServerConsumer {
-
-    private final ObjectMapper objectMapper;
-
-    @Value("${rocketmq.name-server:localhost:9876}")
-    private String nameServer;
-
-    @Value("${rocketmq.consumer.group:game-consumer-group}")
-    private String consumerGroup;
-
-    private DefaultMQPushConsumer pushConsumer;
-
     /**
      * 跨服消息主题
      */
     private static final String TOPIC = "cross-server-events";
+    private final ObjectMapper objectMapper;
+    @Value("${rocketmq.name-server:localhost:9876}")
+    private String nameServer;
+    @Value("${rocketmq.consumer.group:game-consumer-group}")
+    private String consumerGroup;
+    private DefaultMQPushConsumer pushConsumer;
 
     @PostConstruct
     public void init() {

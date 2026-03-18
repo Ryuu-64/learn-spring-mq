@@ -12,6 +12,8 @@ import org.apache.rocketmq.common.message.Message;
 import org.springframework.stereotype.Service;
 import top.ryuu64.learn.spring.springmq.learnspringmq.common.CrossServerMessage;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * 跨服消息生产者
  * 使用 RocketMQ 4.x 标准客户端
@@ -20,14 +22,12 @@ import top.ryuu64.learn.spring.springmq.learnspringmq.common.CrossServerMessage;
 @Service
 @RequiredArgsConstructor
 public class CrossServerProducer {
-
-    private final DefaultMQProducer producer;
-    private final ObjectMapper objectMapper;
-
     /**
      * 跨服消息主题
      */
     private static final String TOPIC = "cross-server-events";
+    private final DefaultMQProducer producer;
+    private final ObjectMapper objectMapper;
 
     @PostConstruct
     public void init() {
@@ -41,10 +41,12 @@ public class CrossServerProducer {
 
     @PreDestroy
     public void close() {
-        if (producer != null) {
-            producer.shutdown();
-            log.info("生产者已关闭");
+        if (producer == null) {
+            return;
         }
+
+        producer.shutdown();
+        log.info("生产者已关闭");
     }
 
     /**
@@ -64,7 +66,7 @@ public class CrossServerProducer {
                     TOPIC,
                     message.getMessageType(),
                     message.getMessageId(),
-                    json.getBytes("UTF-8")
+                    json.getBytes(StandardCharsets.UTF_8)
             );
 
             SendResult sendResult = producer.send(rocketMessage);
@@ -98,7 +100,7 @@ public class CrossServerProducer {
                     TOPIC,
                     tag,
                     message.getMessageId(),
-                    json.getBytes("UTF-8")
+                    json.getBytes(StandardCharsets.UTF_8)
             );
 
             producer.send(rocketMessage);
@@ -114,8 +116,10 @@ public class CrossServerProducer {
     /**
      * 发送玩家升级事件
      */
-    public void sendPlayerLevelUpEvent(Long playerId, String playerName,
-                                       Integer oldLevel, Integer newLevel) {
+    public void sendPlayerLevelUpEvent(
+            Long playerId, String playerName,
+            Integer oldLevel, Integer newLevel
+    ) {
         try {
             var event = new top.ryuu64.learn.spring.springmq.learnspringmq.common.PlayerLevelUpEvent(
                     playerId, playerName, oldLevel, newLevel, System.currentTimeMillis());
@@ -145,7 +149,7 @@ public class CrossServerProducer {
                     TOPIC,
                     message.getMessageType(),
                     message.getMessageId(),
-                    json.getBytes("UTF-8")
+                    json.getBytes(StandardCharsets.UTF_8)
             );
 
             producer.send(rocketMessage);
