@@ -30,7 +30,7 @@ docker-compose up -d
 测试
 
 ```shell
-curl -X POST http://localhost:8080/api/cross-server/level-up \
+curl -X POST http://localhost:8081/api/cross-server/level-up \
 -H "Content-Type: application/json" \
 -d '{"playerId": 1001, "playerName": "张三", "oldLevel": 10, "newLevel": 11}'
 ```

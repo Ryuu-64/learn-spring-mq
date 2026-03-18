@@ -1,0 +1,4 @@
+POST http://localhost:8081/api/cross-server/level-up
+Content-Type: application/json
+
+{"playerId": 1001, "playerName": "张三", "oldLevel": 10, "newLevel": 11}

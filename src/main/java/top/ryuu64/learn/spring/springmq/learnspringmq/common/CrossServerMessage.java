@@ -3,8 +3,11 @@ package top.ryuu64.learn.spring.springmq.learnspringmq.common;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * 跨服消息基类
@@ -14,7 +17,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CrossServerMessage implements Serializable {
-
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -40,21 +43,23 @@ public class CrossServerMessage implements Serializable {
     /**
      * 发送时间
      */
-    private LocalDateTime timestamp;
+    private String timestamp;
 
     /**
      * 消息内容（JSON 格式）
      */
     private String payload;
 
-    public static CrossServerMessage create(String messageType, String sourceService,
-                                            String targetService, String payload) {
+    public static CrossServerMessage create(
+            String messageType, String sourceService,
+            String targetService, String payload
+    ) {
         CrossServerMessage message = new CrossServerMessage();
         message.setMessageId(java.util.UUID.randomUUID().toString());
         message.setMessageType(messageType);
         message.setSourceService(sourceService);
         message.setTargetService(targetService);
-        message.setTimestamp(LocalDateTime.now());
+        message.setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         message.setPayload(payload);
         return message;
     }

@@ -6,7 +6,6 @@ import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
-import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
 import org.apache.rocketmq.common.message.MessageExt;
@@ -15,7 +14,7 @@ import org.springframework.stereotype.Component;
 import top.ryuu64.learn.spring.springmq.learnspringmq.common.CrossServerMessage;
 import top.ryuu64.learn.spring.springmq.learnspringmq.common.PlayerLevelUpEvent;
 
-import java.util.List;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 跨服消息消费者
@@ -47,16 +46,14 @@ public class CrossServerConsumer {
             pushConsumer = new DefaultMQPushConsumer(consumerGroup);
             pushConsumer.setNamesrvAddr(nameServer);
             pushConsumer.subscribe(TOPIC, "*");
-            pushConsumer.setMessageListener(new MessageListenerConcurrently() {
-                @Override
-                public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs,
-                                                               ConsumeConcurrentlyContext context) {
-                    for (MessageExt msg : msgs) {
-                        return handleMessage(msg);
+            pushConsumer.setMessageListener(
+                    (MessageListenerConcurrently) (messages, _) -> {
+                        for (MessageExt message : messages) {
+                            return handleMessage(message);
+                        }
+                        return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
                     }
-                    return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
-                }
-            });
+            );
 
             pushConsumer.start();
             log.info("跨服消息消费者启动成功 - Topic: {}, Group: {}", TOPIC, consumerGroup);
@@ -68,10 +65,12 @@ public class CrossServerConsumer {
 
     @PreDestroy
     public void close() {
-        if (pushConsumer != null) {
-            pushConsumer.shutdown();
-            log.info("消费者已关闭");
+        if (pushConsumer == null) {
+            return;
         }
+
+        pushConsumer.shutdown();
+        log.info("消费者已关闭");
     }
 
     /**
@@ -79,7 +78,7 @@ public class CrossServerConsumer {
      */
     private ConsumeConcurrentlyStatus handleMessage(MessageExt message) {
         try {
-            String messageJson = new String(message.getBody(), "UTF-8");
+            String messageJson = new String(message.getBody(), StandardCharsets.UTF_8);
             String messageType = message.getTags();
             String messageId = message.getMsgId();
 
