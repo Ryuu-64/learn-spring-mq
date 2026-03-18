@@ -194,3 +194,22 @@ curl -X POST http://localhost:8081/api/cross-server/recharge \
 - RocketMQ 5.x 服务端兼容 4.x 客户端，可以正常通信
 - 多消费者通过不同的 Consumer Group 实现，同一条消息会被每个 Group 独立消费一次
 - Producer 和 Consumer 完全解耦，拆分部署时不需要修改任何业务代码
+
+## 测试
+
+```shell
+./gradlew test
+```
+
+单元测试覆盖：
+
+| 测试类 | 覆盖内容 |
+|---|---|
+| `CrossServerMessageTest` | 消息创建、字段赋值、UUID 唯一性 |
+| `PlayerLevelUpEventTest` | 事件构造、字段访问 |
+| `RechargeEventTest` | 事件构造、JSON 序列化/反序列化 |
+| `CrossServerProducerTest` | Producer 发送消息、Topic/Tag 正确性 |
+| `CrossServerControllerTest` | REST 接口参数解析、返回值 |
+| `RechargeConsumerTest` | 业务逻辑（发货计算、统计聚合） |
+- 多消费者通过不同的 Consumer Group 实现，同一条消息会被每个 Group 独立消费一次
+- Producer 和 Consumer 完全解耦，拆分部署时不需要修改任何业务代码
