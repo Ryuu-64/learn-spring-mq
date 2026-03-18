@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: recharge-log-service
+
+rocketmq:
+  name-server: localhost:9876
+  producer:
+    group: log-producer-group
+    send-message-timeout: 3000
+  consumer:
+    group: log-group
+
+server:
+  port: 8082

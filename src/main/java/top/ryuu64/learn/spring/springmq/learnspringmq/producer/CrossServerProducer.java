@@ -11,6 +11,7 @@ import org.apache.rocketmq.client.producer.SendResult;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.stereotype.Service;
 import top.ryuu64.learn.spring.springmq.learnspringmq.common.CrossServerMessage;
+import top.ryuu64.learn.spring.springmq.learnspringmq.common.RechargeEvent;
 
 import java.nio.charset.StandardCharsets;
 
@@ -25,7 +26,17 @@ public class CrossServerProducer {
     /**
      * 跨服消息主题
      */
+    /**
+     * 跨服消息主题
+     */
     private static final String TOPIC = "cross-server-events";
+
+    /**
+     * 充值消息主题
+     */
+    private static final String RECHARGE_TOPIC = "recharge-events";
+
+    private static final String RECHARGE_TAG = "RECHARGE_SUCCESS";
     private final DefaultMQProducer producer;
     private final ObjectMapper objectMapper;
 
@@ -154,9 +165,36 @@ public class CrossServerProducer {
 
             producer.send(rocketMessage);
             log.info("发送消息 - 消息ID: {}", message.getMessageId());
-
         } catch (Exception e) {
             log.error("发送消息失败: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 发送充值成功事件
+     * 消息会同时被 发货服务、日志服务、统计服务 消费
+     */
+    public void sendRechargeEvent(Long playerId, String orderId,
+                                  Double amount, String rechargeType) {
+        try {
+            RechargeEvent event = new RechargeEvent(
+                    playerId, orderId, amount, rechargeType, System.currentTimeMillis());
+            String json = objectMapper.writeValueAsString(event);
+
+            Message rocketMessage = new Message(
+                    RECHARGE_TOPIC,
+                    RECHARGE_TAG,
+                    orderId,
+                    json.getBytes(StandardCharsets.UTF_8)
+            );
+
+            SendResult sendResult = producer.send(rocketMessage);
+
+            log.info("发送充值事件成功 - 玩家ID: {}, 订单号: {}, 金额: {} 元, MessageId: {}",
+                    playerId, orderId, amount, sendResult.getMsgId());
+
+        } catch (Exception e) {
+            log.error("发送充值事件失败: {}", e.getMessage(), e);
         }
     }
 }

@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: recharge-delivery-service
+
+rocketmq:
+  name-server: localhost:9876
+  producer:
+    group: delivery-producer-group
+    send-message-timeout: 3000
+  consumer:
+    group: delivery-group
+
+server:
+  port: 8081

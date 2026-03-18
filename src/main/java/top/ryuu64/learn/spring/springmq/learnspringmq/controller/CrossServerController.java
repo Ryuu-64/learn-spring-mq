@@ -79,6 +79,25 @@ public class CrossServerController {
     }
 
     /**
+     * 发送充值成功事件
+     * POST /api/cross-server/recharge
+     */
+    @PostMapping("/recharge")
+    public Map<String, Object> sendRechargeEvent(@RequestBody Map<String, Object> request) {
+        Long playerId = Long.valueOf(request.get("playerId").toString());
+        String orderId = request.get("orderId").toString();
+        Double amount = Double.valueOf(request.get("amount").toString());
+        String rechargeType = request.get("rechargeType").toString();
+
+        crossServerProducer.sendRechargeEvent(playerId, orderId, amount, rechargeType);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("message", "充值事件已发送");
+        return result;
+    }
+
+    /**
      * 健康检查
      * GET /api/cross-server/health
      */
