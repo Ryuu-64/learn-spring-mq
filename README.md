@@ -43,8 +43,20 @@ src/main/java/top/ryuu64/learn/spring/springmq/learnspringmq/
 | messageType | 消息类型 |
 | sourceService | 发送方服务名称 |
 | targetService | 目标服务名称 |
-| timestamp | 发送时间 |
+| timestamp | 发送时间（ISO 格式字符串） |
 | payload | 消息内容（JSON） |
+
+### PlayerLevelUpEvent
+
+玩家升级事件的具体数据模型：
+
+| 字段 | 说明 |
+|---|---|
+| playerId | 玩家ID |
+| playerName | 玩家名称 |
+| oldLevel | 原等级 |
+| newLevel | 新等级 |
+| timestamp | 升级时间戳 |
 
 ### 支持的消息类型
 
@@ -65,12 +77,12 @@ src/main/java/top/ryuu64/learn/spring/springmq/learnspringmq/
 
 ### REST API
 
-| 方法 | 路径 | 说明 |
-|---|---|---|
-| POST | `/api/cross-server/level-up` | 发送玩家升级事件 |
-| POST | `/api/cross-server/send` | 发送自定义跨服消息 |
-| POST | `/api/cross-server/send-with-tag` | 发送带标签的消息 |
-| GET | `/api/cross-server/health` | 健康检查 |
+| 方法 | 路径 | 参数 | 说明 |
+|---|---|---|---|
+| POST | `/api/cross-server/level-up` | JSON body | 发送玩家升级事件 |
+| POST | `/api/cross-server/send` | JSON body | 发送自定义跨服消息 |
+| POST | `/api/cross-server/send-with-tag` | `messageType`, `tag`, `payload` (URL 参数) | 发送带标签的消息 |
+| GET | `/api/cross-server/health` | 无 | 健康检查 |
 
 ## 使用方式
 
@@ -103,3 +115,4 @@ curl -X POST http://localhost:8081/api/cross-server/level-up \
 ## 备注
 
 - RocketMQ 5.x 服务端兼容 4.x 客户端，可以正常通信
+- Producer 和 Consumer 解耦部署：拆分成两个独立服务连接同一个 RocketMQ 即可实现真正的跨服通信
