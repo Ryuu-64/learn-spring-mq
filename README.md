@@ -33,13 +33,7 @@ src/main/java/top/ryuu64/learn/spring/springmq/
 │   └── StatisticsConsumer.java             # 统计消费者
 ├── controller/
 │   └── CrossServerController.java          # REST 测试接口
-├── delivery/                               # 发货服务入口
-│   └── DeliveryServiceApplication.java
-├── logservice/                             # 日志服务入口
-│   └── LogServiceApplication.java
-├── statistics/                              # 统计服务入口
-│   └── StatisticsServiceApplication.java
-└── LearnSpringMqApplication.java            # 默认入口（跨服消息）
+└── LearnSpringMqApplication.java            # 应用入口
 ```
 
 ## 功能说明
@@ -106,11 +100,9 @@ src/main/java/top/ryuu64/learn/spring/springmq/
     │                │                │
     ▼                ▼                ▼
 ┌────────┐    ┌────────┐    ┌────────────┐
-│发货服务   │    │日志服务   │    │统计服务      │
-│(delivery)│    │(log)    │    │(statistics)│
+│发货消费者   │    │日志消费者   │    │统计消费者      │
 │ 发放钻石   │    │记录日志   │    │汇总数据      │
 └────────┘    └────────┘    └────────────┘
-端口 8081      端口 8082      端口 8083
 ```
 
 **RechargeEvent 模型：**
@@ -143,31 +135,13 @@ docker-compose up -d
 
 该命令会启动三个容器：NameServer、Broker、Proxy。
 
-### 2. 启动服务
-
-**方式一：启动全部服务（单进程，充值三个消费者都在）**
+### 2. 启动应用
 
 ```shell
 ./gradlew bootRun
 ```
 
 应用运行在 `localhost:8081`。
-
-**方式二：分别启动三个独立服务（真正分布式部署）**
-
-```shell
-# 终端 1 - 发货服务
-./gradlew bootRun -Pargs=--spring.profiles.active=delivery
-# 端口 8081
-
-# 终端 2 - 日志服务
-./gradlew bootRun -Pargs=--spring.profiles.active=log
-# 端口 8082
-
-# 终端 3 - 统计服务
-./gradlew bootRun -Pargs=--spring.profiles.active=statistics
-# 端口 8083
-```
 
 ### 3. 测试
 
